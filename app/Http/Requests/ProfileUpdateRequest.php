@@ -25,6 +25,15 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'status' => ['required', Rule::in(['Public', 'Private'])], // Добавлено правило для статуса
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'status.required' => 'Profile status is required.',
+            'status.in' => 'Profile status must be either Public or Private.',
         ];
     }
 }

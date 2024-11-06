@@ -10,7 +10,8 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory;
+    use Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -21,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'status',
     ];
 
     /**
@@ -46,6 +48,48 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Check if the profile is public
+     *
+     * @return bool
+     */
+    public function isPublic(): bool
+    {
+        return $this->status === 'Public';
+    }
+
+    /**
+     * Check if the profile is private
+     *
+     * @return bool
+     */
+    public function isPrivate(): bool
+    {
+        return $this->status === 'Private';
+    }
+
+    /**
+     * Check if the given user can view this profile
+     *
+     * @param User|null $viewer
+     * @return bool
+     */
+    public function canViewProfile(?User $viewer = null): bool
+    {
+        if ($this->isPublic()) {
+            return true;
+        }
+
+        if (! $viewer) {
+            return false;
+        }
+
+        return $this->id === $viewer->id;
+    }
+
+    /**
+     * Get the todo lists for the user.
+     */
     public function todolists()
     {
         return $this->hasMany(TodoList::class);

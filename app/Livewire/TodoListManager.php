@@ -2,9 +2,9 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
 use App\Models\TodoList;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 
 class TodoListManager extends Component
 {
@@ -15,7 +15,19 @@ class TodoListManager extends Component
 
     public function render()
     {
-        $todolists = TodoList::with('user')->get();
+        // Получаем публичные списки
+        $query = TodoList::where('status', 'Public');
+
+        // Если пользователь авторизован, добавляем его приватные списки
+        if (Auth::check()) {
+            $query->orWhere(function ($q) {
+                $q->where('status', 'Private')
+                  ->where('user_id', Auth::id());
+            });
+        }
+
+        $todolists = $query->with('user')->get();
+
         return view('livewire.todo-list-manager', ['todolists' => $todolists]);
     }
 
@@ -37,6 +49,12 @@ class TodoListManager extends Component
     public function startEditing($id)
     {
         $todo = TodoList::findOrFail($id);
+
+        // Проверяем, является ли пользователь владельцем
+        if ($todo->user_id !== Auth::id()) {
+            return;
+        }
+
         $this->name = $todo->name;
         $this->status = $todo->status;
         $this->editingId = $id;
@@ -55,6 +73,12 @@ class TodoListManager extends Component
         ]);
 
         $todo = TodoList::findOrFail($this->editingId);
+
+        // Проверяем, является ли пользователь владельцем
+        if ($todo->user_id !== Auth::id()) {
+            return;
+        }
+
         $todo->update([
             'name' => $this->name,
             'status' => $this->status,
@@ -65,12 +89,28 @@ class TodoListManager extends Component
 
     public function deleteTodoList($id)
     {
-        TodoList::findOrFail($id)->delete();
+        $todo = TodoList::findOrFail($id);
+
+        // Проверяем, является ли пользователь владельцем
+        if ($todo->user_id !== Auth::id()) {
+            return;
+        }
+
+        $todo->delete();
         $this->reset(['name', 'status', 'editingId']);
     }
 
     public function selectTodoList($id)
     {
-        $this->selectedTodoList = TodoList::findOrFail($id);
+        $todoList = TodoList::findOrFail($id);
+
+        // Проверяем доступ к списку
+        if ($todoList->status === 'Private' && (! Auth::check() || Auth::id() !== $todoList->user_id)) {
+            session()->flash('error', 'You do not have access to this private list.');
+
+            return;
+        }
+
+        $this->selectedTodoList = $todoList;
     }
 }
