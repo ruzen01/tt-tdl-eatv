@@ -23,13 +23,16 @@ class ProfileTest extends TestCase
 
     public function test_profile_information_can_be_updated(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'status' => 'Public', // Устанавливаем статус для нового пользователя
+        ]);
 
         $response = $this
             ->actingAs($user)
             ->patch('/profile', [
                 'name' => 'Test User',
                 'email' => 'test@example.com',
+                'status' => 'Private', // Отправляем допустимый статус
             ]);
 
         $response
@@ -45,13 +48,16 @@ class ProfileTest extends TestCase
 
     public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'status' => 'Public', // Устанавливаем статус для нового пользователя
+        ]);
 
         $response = $this
             ->actingAs($user)
             ->patch('/profile', [
                 'name' => 'Test User',
                 'email' => $user->email,
+                'status' => 'Public', // Отправляем тот же статус
             ]);
 
         $response
