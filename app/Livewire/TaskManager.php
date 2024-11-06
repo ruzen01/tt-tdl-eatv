@@ -29,14 +29,14 @@ class TaskManager extends Component
 
         // Получаем публичные задачи
         $query = Task::where('todo_list_id', $this->todoListId)
-                    ->where('status', 'Public');
+            ->where('status', 'Public');
 
         // Если пользователь авторизован и является владельцем списка,
         // добавляем его приватные задачи
         if (Auth::check() && $todoList->user_id === Auth::id()) {
             $query->orWhere(function ($q) {
                 $q->where('todo_list_id', $this->todoListId)
-                  ->where('status', 'Private');
+                    ->where('status', 'Private');
             });
         }
 

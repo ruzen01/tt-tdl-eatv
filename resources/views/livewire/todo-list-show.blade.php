@@ -6,15 +6,15 @@
         <h4>Tasks:</h4>
         <ul class="list-group">
             @forelse($todoList->tasks as $task)
-                @if($task->status === 'Public')
-                    <li class="list-group-item">
-                        {{ $task->name }} - {{ $task->status }} - {{ $task->progress }}
-                    </li>
-                @endif
+            @if($task->status === 'Public')
+            <li class="list-group-item">
+                {{ $task->name }} - {{ $task->status }} - {{ $task->progress }}
+            </li>
+            @endif
             @empty
-                <li class="list-group-item">
-                    No tasks in this list yet
-                </li>
+            <li class="list-group-item">
+                No tasks in this list yet
+            </li>
             @endforelse
         </ul>
 

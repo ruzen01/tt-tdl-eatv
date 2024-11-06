@@ -12,8 +12,10 @@ class TodoListShow extends Component
 
     public function mount(TodoList $todoList)
     {
-        if ($todoList->status !== 'Public' &&
-            (! Auth::check() || Auth::id() !== $todoList->user_id)) {
+        if (
+            $todoList->status !== 'Public' &&
+            (! Auth::check() || Auth::id() !== $todoList->user_id)
+        ) {
             abort(403, 'This todo list is private');
         }
 

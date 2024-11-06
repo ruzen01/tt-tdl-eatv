@@ -22,7 +22,7 @@ class TodoListManager extends Component
         if (Auth::check()) {
             $query->orWhere(function ($q) {
                 $q->where('status', 'Private')
-                  ->where('user_id', Auth::id());
+                    ->where('user_id', Auth::id());
             });
         }
 
